@@ -2,7 +2,6 @@ import Image from "next/image";
 import styles from "./PostHeader.module.css";
 
 export default function PostHeader(props) {
-  console.log(props)
   const { title, image } = props;
   return (
     <header className={styles.header}>
