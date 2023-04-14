@@ -10,14 +10,14 @@ export default function ContactForm() {
   const [requestError, setRequestError] = useState();
 
   useEffect(() => {
-   if(requestStatus === "success" || requestStatus === "error") {
-    const timer =setTimeout(() => {
+    if (requestStatus === "success" || requestStatus === "error") {
+      const timer = setTimeout(() => {
         setRequestStatus(null);
         setRequestError(null);
       }, 3000);
 
       return () => clearTimeout(timer);
-   }
+    }
   }, [requestStatus]);
 
   async function sendContactData(contactDetails) {
@@ -53,6 +53,9 @@ export default function ContactForm() {
       });
 
       setRequestStatus("success");
+      emailInputRef.current.value = null;
+      nameInputRef.current.value = null;
+      messageInputRef.current.value = null;
     } catch (error) {
       setRequestStatus("error");
       setRequestError(error.message);
