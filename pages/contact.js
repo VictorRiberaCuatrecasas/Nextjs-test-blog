@@ -1,5 +1,5 @@
 import ContactForm from "../components/contact/ContactForm";
-import Head from "react/head";
+import Head from "next/head";
 
 export default function ContactPage() {
   return (

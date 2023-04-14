@@ -1,7 +1,7 @@
 import Hero from "../components/Hero";
 import FeaturedPosts from "../components/FeaturedPosts";
 import { getFeaturedPosts } from "../lib/posts-util";
-import Head from "react/head";
+import Head from "next/head";
 
 export default function HomePage(props) {
   return (
