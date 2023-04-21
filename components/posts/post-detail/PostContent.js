@@ -28,7 +28,6 @@ export default function PostContent(props) {
       return <p>{props.children}</p>;
     },
     code(code) {
-      console.log(code)
       const array = code.className.split("-");
       const language = array[1];
 
