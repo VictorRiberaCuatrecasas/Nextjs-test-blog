@@ -1,16 +1,33 @@
-import styles from "./ContactForm.module.css";
-import { useRef, useState, useEffect } from "react";
-import Notification from "../ui/notification";
+import { useState, useEffect } from 'react';
 
-export default function ContactForm() {
-  const nameInputRef = useRef();
-  const emailInputRef = useRef();
-  const messageInputRef = useRef();
-  const [requestStatus, setRequestStatus] = useState(); // pending, success, error
+import classes from './contactForm.module.css';
+import Notification from '../ui/notification';
+
+async function sendContactData(contactDetails) {
+  const response = await fetch('/api/contact', {
+    method: 'POST',
+    body: JSON.stringify(contactDetails),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Something went wrong!');
+  }
+}
+
+function ContactForm() {
+  const [enteredEmail, setEnteredEmail] = useState('');
+  const [enteredName, setEnteredName] = useState('');
+  const [enteredMessage, setEnteredMessage] = useState('');
+  const [requestStatus, setRequestStatus] = useState(); // 'pending', 'success', 'error'
   const [requestError, setRequestError] = useState();
 
   useEffect(() => {
-    if (requestStatus === "success" || requestStatus === "error") {
+    if (requestStatus === 'success' || requestStatus === 'error') {
       const timer = setTimeout(() => {
         setRequestStatus(null);
         setRequestError(null);
@@ -20,30 +37,12 @@ export default function ContactForm() {
     }
   }, [requestStatus]);
 
-  async function sendContactData(contactDetails) {
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      body: JSON.stringify(contactDetails),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  async function sendMessageHandler(event) {
+    event.preventDefault();
 
-    const data = await response.json();
+    // optional: add client-side validation
 
-    if (!response.ok) {
-      throw new Error(data.message || "somthing went wrong");
-    }
-  }
-
-  async function sendMessageHandler(e) {
-    e.preventDefault();
-
-    const enteredEmail = emailInputRef.current.value;
-    const enteredName = nameInputRef.current.value;
-    const enteredMessage = messageInputRef.current.value;
-
-    setRequestStatus("pending");
+    setRequestStatus('pending');
 
     try {
       await sendContactData({
@@ -51,61 +50,81 @@ export default function ContactForm() {
         name: enteredName,
         message: enteredMessage,
       });
-
-      setRequestStatus("success");
-      emailInputRef.current.value = null;
-      nameInputRef.current.value = null;
-      messageInputRef.current.value = null;
+      setRequestStatus('success');
+      setEnteredMessage('');
+      setEnteredEmail('');
+      setEnteredName('');
     } catch (error) {
-      setRequestStatus("error");
       setRequestError(error.message);
+      setRequestStatus('error');
     }
   }
 
   let notification;
 
-  if (requestStatus === "pending") {
+  if (requestStatus === 'pending') {
     notification = {
-      status: "pending",
-      title: "sending message..",
-      message: "You message is being sent",
+      status: 'pending',
+      title: 'Sending message...',
+      message: 'Your message is on its way!',
     };
   }
-  if (requestStatus === "success") {
+
+  if (requestStatus === 'success') {
     notification = {
-      status: "success",
-      title: "Success",
-      message: "Message sent",
+      status: 'success',
+      title: 'Success!',
+      message: 'Message sent successfully!',
     };
   }
-  if (requestStatus === "error") {
+
+  if (requestStatus === 'error') {
     notification = {
-      status: "error",
-      title: "Error!",
+      status: 'error',
+      title: 'Error!',
       message: requestError,
     };
   }
 
   return (
-    <section className={styles.contact}>
+    <section className={classes.contact}>
       <h1>How can I help you?</h1>
-      <form className={styles.form} onSubmit={sendMessageHandler}>
-        <div className={styles.controls}>
-          <div className={styles.control}>
-            <label htmlFor="email">Your email</label>
-            <input type="email" id="email" required ref={emailInputRef}></input>
+      <form className={classes.form} onSubmit={sendMessageHandler}>
+        <div className={classes.controls}>
+          <div className={classes.control}>
+            <label htmlFor='email'>Your Email</label>
+            <input
+              type='email'
+              id='email'
+              required
+              value={enteredEmail}
+              onChange={(event) => setEnteredEmail(event.target.value)}
+            />
           </div>
-          <div className={styles.control}>
-            <label htmlFor="name">Your Name</label>
-            <input type="text" id="name" required ref={nameInputRef}></input>
+          <div className={classes.control}>
+            <label htmlFor='name'>Your Name</label>
+            <input
+              type='text'
+              id='name'
+              required
+              value={enteredName}
+              onChange={(event) => setEnteredName(event.target.value)}
+            />
           </div>
-          <div className={styles.control}>
-            <label htmlFor="message">Your Message</label>
-            <textarea id="name" rows="5" ref={messageInputRef}></textarea>
-          </div>
-          <div className={styles.actions}>
-            <button>Send message</button>
-          </div>
+        </div>
+        <div className={classes.control}>
+          <label htmlFor='message'>Your Message</label>
+          <textarea
+            id='message'
+            rows='5'
+            required
+            value={enteredMessage}
+            onChange={(event) => setEnteredMessage(event.target.value)}
+          ></textarea>
+        </div>
+
+        <div className={classes.actions}>
+          <button>Send Message</button>
         </div>
       </form>
       {notification && (
@@ -118,3 +137,5 @@ export default function ContactForm() {
     </section>
   );
 }
+
+export default ContactForm;
